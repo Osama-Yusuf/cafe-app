@@ -145,6 +145,14 @@ export interface PlanState {
   partnerReinvest: number;
   partnerDayThreshold: number;
 
+  // Marketing budget
+  mktSocial: number;
+  mktInfluencer: number;
+  mktContent: number;
+  mktSEO: number;
+  mktEvents: number;
+  mktPrint: number;
+
   // Zakat
   zkCash: number;
   zkInventory: number;
@@ -238,6 +246,9 @@ export const usePlanStore = create<PlanState>()(
       revenueGrowthPct: 5,
       partnerReinvest: 50,
       partnerDayThreshold: 5000,
+
+      mktSocial: 4000, mktInfluencer: 2000, mktContent: 2000,
+      mktSEO: 1000, mktEvents: 500, mktPrint: 500,
 
       zkCash: 0, zkInventory: 0, zkReceivables: 0,
       zkDebts: 0, zkExpenses: 0, zkNisab: 350000,

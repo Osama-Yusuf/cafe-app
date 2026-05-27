@@ -4,17 +4,8 @@ import { DashboardPage } from '@/pages/dashboard';
 import { PlanningPage } from '@/pages/planning';
 import { CostsPage } from '@/pages/costs';
 import { RevenuePage } from '@/pages/revenue';
-
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div className="flex items-center justify-center h-[50vh] text-text3">
-      <div className="text-center">
-        <h2 className="text-xl font-bold mb-2">{title}</h2>
-        <p className="text-sm">Coming soon — being ported from the prototype.</p>
-      </div>
-    </div>
-  );
-}
+import { StrategyPage } from '@/pages/strategy';
+import { FaithPage } from '@/pages/faith';
 
 function PageRouter() {
   const currentPage = useNavStore((s) => s.currentPage);
@@ -24,8 +15,8 @@ function PageRouter() {
     case 'planning': return <PlanningPage />;
     case 'costs': return <CostsPage />;
     case 'revenue': return <RevenuePage />;
-    case 'strategy': return <PlaceholderPage title="Strategy" />;
-    case 'faith': return <PlaceholderPage title="Faith" />;
+    case 'strategy': return <StrategyPage />;
+    case 'faith': return <FaithPage />;
     default: return <DashboardPage />;
   }
 }
