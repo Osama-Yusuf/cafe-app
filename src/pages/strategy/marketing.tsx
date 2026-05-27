@@ -1,7 +1,7 @@
 import { usePlanStore, type PlanState } from '@/stores/plan-store';
 import { fmt } from '@/lib/format';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { EditableNumber } from '@/components/ui/editable-number';
 import { MarketingChannels } from './marketing-channels';
 
 function BudgetRow({ label, storeKey }: { label: string; storeKey: keyof PlanState }) {
@@ -11,16 +11,11 @@ function BudgetRow({ label, storeKey }: { label: string; storeKey: keyof PlanSta
   return (
     <div className="flex items-center justify-between py-2 border-b border-border text-sm">
       <span className="text-text2 flex-1">{label}</span>
-      <Input
-        type="number"
-        inputMode="numeric"
-        value={value || ''}
-        onChange={(e) => set({ [storeKey]: Number(e.target.value) || 0 })}
-        className="w-24 text-right bg-bg border-border text-sm h-8"
+      <EditableNumber
+        value={value}
+        onChange={(v) => set({ [storeKey]: v })}
+        size="sm"
       />
-      <span className="w-20 text-right text-gold font-semibold text-sm tabular-nums">
-        {fmt(value)}
-      </span>
     </div>
   );
 }

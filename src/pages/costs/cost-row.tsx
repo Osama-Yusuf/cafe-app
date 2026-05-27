@@ -1,5 +1,5 @@
 import { usePlanStore, type PlanState } from '@/stores/plan-store';
-import { Input } from '@/components/ui/input';
+import { EditableNumber } from '@/components/ui/editable-number';
 import { fmt } from '@/lib/format';
 
 export function CostRow({
@@ -15,20 +15,15 @@ export function CostRow({
   const set = usePlanStore((s) => s.set);
 
   return (
-    <div className="flex items-center justify-between py-2 border-b border-border text-sm">
-      <span className="text-text2 flex-1" title={tip}>
+    <div className="flex items-center justify-between py-2.5 border-b border-[#252525] text-sm group">
+      <span className="text-[#a09889] flex-1" title={tip}>
         {label}
       </span>
-      <Input
-        type="number"
-        inputMode="numeric"
-        value={value || ''}
-        onChange={(e) => set({ [storeKey]: Number(e.target.value) || 0 })}
-        className="w-24 text-right bg-bg border-border text-sm h-8"
+      <EditableNumber
+        value={value}
+        onChange={(v) => set({ [storeKey]: v })}
+        size="sm"
       />
-      <span className="w-20 text-right text-gold font-semibold text-sm tabular-nums">
-        {fmt(value)}
-      </span>
     </div>
   );
 }
@@ -44,11 +39,11 @@ export function CostCategory({
 }) {
   return (
     <div className="mb-6">
-      <div className="flex items-center justify-between mb-2 pb-2 border-b-2 border-gold/30">
-        <h3 className="text-sm font-bold text-text uppercase tracking-wider">
+      <div className="flex items-center justify-between mb-2 pb-2 border-b-2 border-[#d4a54a]/30">
+        <h3 className="text-xs font-bold text-[#ece5db] uppercase tracking-widest">
           {title}
         </h3>
-        <span className="text-sm font-bold text-gold tabular-nums">
+        <span className="text-sm font-bold text-[#d4a54a] tabular-nums">
           {fmt(subtotal)}
         </span>
       </div>

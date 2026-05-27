@@ -1,57 +1,36 @@
 import { usePlanStore } from '@/stores/plan-store';
 import { useCalc } from '@/hooks/use-calc';
 import { fmt } from '@/lib/format';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
+import { EditableNumber } from '@/components/ui/editable-number';
 
-const CATEGORIES: { key: string; label: string; color: string }[] = [
-  { key: 'hot', label: 'Hot Drinks', color: 'bg-orange-900/30 text-orange-400 border-orange-800/40' },
-  { key: 'cold', label: 'Cold Drinks', color: 'bg-sky-900/30 text-sky-400 border-sky-800/40' },
-  { key: 'fresh', label: 'Fresh', color: 'bg-green-900/30 text-green-400 border-green-800/40' },
-  { key: 'food', label: 'Food', color: 'bg-amber-900/30 text-amber-400 border-amber-800/40' },
+const CATEGORIES = [
+  { key: 'hot', label: 'Hot Drinks', color: '#c08b5c' },
+  { key: 'cold', label: 'Cold Drinks', color: '#5b8fc7' },
+  { key: 'fresh', label: 'Fresh', color: '#5ba872' },
+  { key: 'food', label: 'Food', color: '#9b7dd4' },
 ];
 
-function MenuRow({ itemKey, name, price, cost, margin }: {
-  itemKey: string;
-  name: string;
-  price: number;
-  cost: number;
-  margin: number;
+function MenuItemRow({ itemKey, name, price, cost, margin }: {
+  itemKey: string; name: string; price: number; cost: number; margin: number;
 }) {
   const updateMenuItem = usePlanStore((s) => s.updateMenuItem);
 
   return (
-    <tr className="border-b border-border/50 hover:bg-bg2/30">
-      <td className="py-2 text-text2">{name}</td>
-      <td className="py-2">
-        <Input
-          type="number"
-          inputMode="numeric"
-          value={price || ''}
-          onChange={(e) => updateMenuItem(itemKey, { price: Number(e.target.value) || 0 })}
-          className="h-7 w-20 text-right bg-bg border-border text-xs"
-        />
-      </td>
-      <td className="py-2">
-        <Input
-          type="number"
-          inputMode="numeric"
-          value={cost || ''}
-          onChange={(e) => updateMenuItem(itemKey, { cost: Number(e.target.value) || 0 })}
-          className="h-7 w-20 text-right bg-bg border-border text-xs"
-        />
-      </td>
-      <td className="py-2 text-right tabular-nums">
-        <span
-          className={`font-semibold text-sm ${
-            margin >= 70 ? 'text-green-400' : margin >= 50 ? 'text-gold' : 'text-orange-400'
-          }`}
-        >
+    <div className="grid grid-cols-[1fr_80px_80px_60px] gap-2 items-center py-2 border-b border-[#252525]/60 hover:bg-[#1e1e1e]/30 transition-colors">
+      <span className="text-[#a09889] text-sm">{name}</span>
+      <div className="text-right">
+        <EditableNumber value={price} onChange={(v) => updateMenuItem(itemKey, { price: v })} size="sm" />
+      </div>
+      <div className="text-right">
+        <EditableNumber value={cost} onChange={(v) => updateMenuItem(itemKey, { cost: v })} size="sm" className="!text-[#a09889]" />
+      </div>
+      <div className="text-right">
+        <span className={`text-xs font-bold tabular-nums ${margin >= 75 ? 'text-[#5ba872]' : margin >= 60 ? 'text-[#d4a54a]' : 'text-[#c75b3a]'}`}>
           {margin.toFixed(0)}%
         </span>
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 }
 
@@ -61,144 +40,82 @@ export function Menu() {
   const avgTicketOverride = usePlanStore((s) => s.avgTicket);
   const set = usePlanStore((s) => s.set);
 
-  const menuMargins = calc.menuMargins;
-
   return (
     <div className="space-y-6">
-      {/* Menu Table */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="text-text">Menu Items</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-2 text-text3 font-semibold text-xs uppercase tracking-wider">Item</th>
-                  <th className="text-right py-2 text-text3 font-semibold text-xs uppercase tracking-wider">Sell (EGP)</th>
-                  <th className="text-right py-2 text-text3 font-semibold text-xs uppercase tracking-wider">Cost (EGP)</th>
-                  <th className="text-right py-2 text-text3 font-semibold text-xs uppercase tracking-wider">Margin</th>
-                </tr>
-              </thead>
-              <tbody>
-                {CATEGORIES.map((cat) => {
-                  const items = menuMargins.filter((m) => m.category === cat.key);
-                  if (items.length === 0) return null;
-                  return (
-                    <CategorySection
-                      key={cat.key}
-                      label={cat.label}
-                      color={cat.color}
-                      items={items}
-                    />
-                  );
-                })}
-              </tbody>
-            </table>
+      <div>
+        <p className="text-xs text-[#d4a54a] font-semibold tracking-widest uppercase mb-1">Products</p>
+        <h2 className="text-2xl font-black tracking-tight text-[#ece5db]">Menu & Pricing</h2>
+        <p className="text-sm text-[#a09889] mt-1">Click any number to edit. Margins update live.</p>
+      </div>
+
+      <Card className="bg-[#181818] border-[#252525]">
+        <CardContent className="pt-5">
+          {/* Header */}
+          <div className="grid grid-cols-[1fr_80px_80px_60px] gap-2 pb-2 border-b-2 border-[#252525] text-[0.6rem] font-bold text-[#6b6158] uppercase tracking-widest">
+            <span>Item</span>
+            <span className="text-right">Sell</span>
+            <span className="text-right">Cost</span>
+            <span className="text-right">Margin</span>
           </div>
 
+          {CATEGORIES.map((cat) => {
+            const items = calc.menuMargins.filter((m) => m.category === cat.key);
+            if (items.length === 0) return null;
+            return (
+              <div key={cat.key}>
+                <div className="flex items-center gap-2 pt-4 pb-1">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: cat.color }} />
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: cat.color }}>{cat.label}</span>
+                </div>
+                {items.map((item) => (
+                  <MenuItemRow key={item.key} itemKey={item.key} name={item.name} price={item.price} cost={item.cost} margin={item.margin} />
+                ))}
+              </div>
+            );
+          })}
+
           {/* Average margin */}
-          <div className="flex items-center justify-between pt-4 mt-2 border-t-2 border-gold">
-            <span className="text-sm font-bold text-text uppercase tracking-wider">
-              Average Margin
-            </span>
-            <span className="text-lg font-extrabold text-gold tabular-nums">
-              {calc.avgMargin.toFixed(1)}%
-            </span>
+          <div className="flex items-center justify-between pt-4 mt-4 border-t-2 border-[#d4a54a]/30">
+            <span className="text-xs font-bold text-[#ece5db] uppercase tracking-widest">Average Margin</span>
+            <span className="text-lg font-extrabold text-[#d4a54a] tabular-nums">{calc.avgMargin.toFixed(1)}%</span>
           </div>
         </CardContent>
       </Card>
 
       {/* Revenue Projection */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="text-text">Revenue Projection</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label className="text-text3 text-xs mb-1">Daily Customers</Label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                value={dailyCustomers || ''}
-                onChange={(e) => set({ dailyCustomers: Number(e.target.value) || 0 })}
-                className="bg-bg2 border-border text-text"
-              />
+      <Card className="bg-[#181818] border-[#252525]">
+        <CardContent className="pt-5">
+          <h3 className="text-sm font-bold text-[#ece5db] mb-4">Revenue Projection</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="flex items-center justify-between py-2 border-b border-[#252525]">
+              <span className="text-[#a09889] text-sm">Daily Customers</span>
+              <EditableNumber value={dailyCustomers} onChange={(v) => set({ dailyCustomers: v })} />
             </div>
-            <div>
-              <Label className="text-text3 text-xs mb-1">
-                Avg Ticket (EGP){' '}
-                <span className="text-text3 font-normal">
-                  {avgTicketOverride ? '(manual)' : '(auto-calculated)'}
-                </span>
-              </Label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                value={avgTicketOverride || ''}
-                onChange={(e) => set({ avgTicket: Number(e.target.value) || 0 })}
-                placeholder={String(calc.avgTicket)}
-                className="bg-bg2 border-border text-text"
+            <div className="flex items-center justify-between py-2 border-b border-[#252525]">
+              <span className="text-[#a09889] text-sm">Avg Ticket</span>
+              <EditableNumber
+                value={avgTicketOverride || calc.avgTicket}
+                onChange={(v) => set({ avgTicket: v })}
+                suffix=" EGP"
               />
             </div>
           </div>
-
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
-            <div className="text-center">
-              <div className="text-xl font-extrabold text-gold tabular-nums">
-                {fmt(calc.avgTicket)}
-              </div>
-              <div className="text-[0.6rem] text-text3 uppercase tracking-wider">avg ticket</div>
+          <div className="grid grid-cols-3 gap-px bg-[#252525] rounded-lg overflow-hidden">
+            <div className="bg-[#0b0b0b] p-4 text-center">
+              <div className="text-xl font-extrabold text-[#d4a54a] tabular-nums">{fmt(calc.avgTicket)}</div>
+              <div className="text-[0.55rem] text-[#6b6158] uppercase tracking-wider mt-1">Avg Ticket</div>
             </div>
-            <div className="text-center">
-              <div className="text-xl font-extrabold text-gold tabular-nums">
-                {fmt(calc.dailyRevenue)}
-              </div>
-              <div className="text-[0.6rem] text-text3 uppercase tracking-wider">daily revenue</div>
+            <div className="bg-[#0b0b0b] p-4 text-center">
+              <div className="text-xl font-extrabold text-[#5ba872] tabular-nums">{fmt(calc.dailyRevenue)}</div>
+              <div className="text-[0.55rem] text-[#6b6158] uppercase tracking-wider mt-1">Daily Revenue</div>
             </div>
-            <div className="text-center">
-              <div className="text-xl font-extrabold text-gold tabular-nums">
-                {fmt(calc.monthlyRevenue)}
-              </div>
-              <div className="text-[0.6rem] text-text3 uppercase tracking-wider">monthly revenue</div>
+            <div className="bg-[#0b0b0b] p-4 text-center">
+              <div className="text-xl font-extrabold text-[#5ba872] tabular-nums">{fmt(calc.monthlyRevenue)}</div>
+              <div className="text-[0.55rem] text-[#6b6158] uppercase tracking-wider mt-1">Monthly Revenue</div>
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-function CategorySection({
-  label,
-  color,
-  items,
-}: {
-  label: string;
-  color: string;
-  items: { key: string; name: string; price: number; cost: number; margin: number }[];
-}) {
-  return (
-    <>
-      <tr>
-        <td colSpan={4} className="pt-4 pb-1">
-          <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${color}`}>
-            {label}
-          </span>
-        </td>
-      </tr>
-      {items.map((item) => (
-        <MenuRow
-          key={item.key}
-          itemKey={item.key}
-          name={item.name}
-          price={item.price}
-          cost={item.cost}
-          margin={item.margin}
-        />
-      ))}
-    </>
   );
 }

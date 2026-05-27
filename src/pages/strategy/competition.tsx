@@ -3,6 +3,7 @@ import { useCompetitorsStore } from '@/stores/competitors-store';
 import { fmt } from '@/lib/format';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { EditableNumber } from '@/components/ui/editable-number';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { SignatureDrinks } from './competition-standout';
@@ -111,12 +112,10 @@ function CompetitorCard({ index }: { index: number }) {
           ]).map(({ key, label, yours }) => (
             <div key={key} className="space-y-1">
               <label className="text-xs text-text3 uppercase tracking-wider">{label}</label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                value={competitor[key] || ''}
-                onChange={(e) => update(index, { [key]: Number(e.target.value) || 0 })}
-                className="h-8 text-right bg-bg border-border text-sm"
+              <EditableNumber
+                value={competitor[key]}
+                onChange={(v) => update(index, { [key]: v })}
+                size="sm"
               />
               <PriceCompare yours={yours} theirs={competitor[key]} />
             </div>

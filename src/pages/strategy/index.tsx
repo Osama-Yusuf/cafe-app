@@ -10,7 +10,7 @@ export function StrategyPage() {
 
   return (
     <Tabs value={activeTab} onValueChange={(v) => setTab('strategy', v)}>
-      <TabsList className="bg-bg2 border border-border mb-6">
+      <TabsList>
         <TabsTrigger value="competition">Competition</TabsTrigger>
         <TabsTrigger value="milestones">Milestones</TabsTrigger>
         <TabsTrigger value="marketing">Marketing</TabsTrigger>

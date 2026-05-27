@@ -3,7 +3,7 @@ import { usePlanStore, type PlanState } from '@/stores/plan-store';
 import { useCalc } from '@/hooks/use-calc';
 import { fmt } from '@/lib/format';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { EditableNumber } from '@/components/ui/editable-number';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -14,12 +14,10 @@ function ZakatInput({ label, storeKey }: { label: string; storeKey: keyof PlanSt
   return (
     <div className="flex items-center justify-between py-2 border-b border-border text-sm">
       <span className="text-text2 flex-1">{label}</span>
-      <Input
-        type="number"
-        inputMode="numeric"
-        value={value || ''}
-        onChange={(e) => set({ [storeKey]: Number(e.target.value) || 0 })}
-        className="w-28 text-right bg-bg border-border text-sm h-8"
+      <EditableNumber
+        value={value}
+        onChange={(v) => set({ [storeKey]: v })}
+        size="sm"
       />
     </div>
   );

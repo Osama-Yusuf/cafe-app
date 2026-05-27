@@ -1,166 +1,123 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { usePlanStore, type PlanState } from '@/stores/plan-store';
 import { useCalc } from '@/hooks/use-calc';
 import { fmt, fmtK } from '@/lib/format';
 import { AREA_DEFAULTS, type Area } from '@/lib/constants';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
+import { EditableNumber } from '@/components/ui/editable-number';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { MapPin, CheckCircle, Plus, Trash2, RotateCcw } from 'lucide-react';
+import { Plus, RotateCcw, ChevronRight } from 'lucide-react';
 
-function BudgetBar({ areas }: { areas: Area[] }) {
-  const sorted = useMemo(
-    () => [...areas].sort((a, b) => a.budgetMin - b.budgetMin),
-    [areas]
-  );
-  const maxBudget = sorted.length > 0 ? sorted[sorted.length - 1].budgetMin : 1;
+function BudgetRanking({ areas, selectedId, onSelect }: { areas: Area[]; selectedId: string; onSelect: (id: string) => void }) {
+  const sorted = useMemo(() => [...areas].sort((a, b) => a.budgetMin - b.budgetMin), [areas]);
+  const maxB = sorted.length > 0 ? sorted[sorted.length - 1].budgetMin : 1;
+  const colors = ['#5ba872','#5ba872','#d4a54a','#d4a54a','#c08b5c','#c08b5c','#c75b3a','#c75b3a','#c75b3a','#c75b3a'];
 
   return (
-    <div className="space-y-2">
-      {sorted.map((area) => {
-        const pct = maxBudget > 0 ? (area.budgetMin / maxBudget) * 100 : 0;
+    <div className="flex items-end gap-2 h-[140px]">
+      {sorted.map((a, i) => {
+        const sel = a.id === selectedId;
+        const h = Math.max(24, Math.round((a.budgetMin / maxB) * 100));
         return (
-          <div key={area.id} className="flex items-center gap-3">
-            <span className="text-xs text-text2 w-28 truncate shrink-0">{area.name}</span>
-            <div className="flex-1 h-2 bg-bg2 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gold/70 rounded-full transition-all duration-500"
-                style={{ width: `${pct}%` }}
-              />
+          <button key={a.id} onClick={() => onSelect(a.id)} className="flex-1 min-w-0 text-center cursor-pointer transition-all hover:scale-[1.03]">
+            <div className={`text-[0.7rem] font-bold mb-1.5 truncate ${sel ? 'text-[#d4a54a]' : 'text-[#a09889]'}`}>
+              {a.budgetRange}
             </div>
-            <span className="text-xs text-text3 tabular-nums shrink-0 w-16 text-right">
-              {area.budgetMin}M+
-            </span>
-          </div>
+            <div
+              className="rounded-t-md transition-all duration-300"
+              style={{
+                height: h,
+                background: sel ? '#d4a54a' : colors[Math.min(i, colors.length - 1)],
+                opacity: sel ? 1 : 0.85,
+                width: '100%',
+              }}
+            />
+            <div className={`text-[0.6rem] mt-1.5 leading-tight truncate ${sel ? 'text-[#d4a54a] font-bold' : 'text-[#6b6158]'}`}>
+              {a.name}
+            </div>
+          </button>
         );
       })}
     </div>
   );
 }
 
-function AreaCard({
-  area,
-  isSelected,
-  onSelect,
-  onDelete,
-  onUpdate,
-}: {
-  area: Area;
-  isSelected: boolean;
-  onSelect: () => void;
-  onDelete: () => void;
+function AreaCard({ area, isSelected, onSelect, onDelete, onUpdate }: {
+  area: Area; isSelected: boolean; onSelect: () => void; onDelete: () => void;
   onUpdate: (field: keyof Area, value: string | number) => void;
 }) {
+  const [showPros, setShowPros] = useState(false);
+
   return (
-    <Card className={`bg-card border-border relative ${isSelected ? 'ring-1 ring-gold/40' : ''}`}>
+    <div className={`group relative rounded-xl p-5 transition-all ${isSelected ? 'border-2 border-[#d4a54a] bg-gradient-to-br from-[#181818] to-[#1a1508] shadow-[0_0_20px_rgba(212,165,74,0.08)]' : 'border border-[#252525] bg-[#181818] hover:border-[#333]'}`}>
       {isSelected && (
-        <div className="absolute top-3 right-3">
-          <Badge className="bg-gold/20 text-gold text-[0.6rem]">
-            <CheckCircle size={10} className="mr-1" />
-            Selected
-          </Badge>
+        <div className="absolute top-3 right-3 text-[0.6rem] font-bold uppercase tracking-widest text-[#0b0b0b] bg-[#d4a54a] px-2.5 py-1 rounded-md shadow-sm">
+          Selected
         </div>
       )}
-      <CardHeader>
-        <CardTitle className="text-text text-sm pr-16">
-          <Input
-            value={area.name}
-            onChange={(e) => onUpdate('name', e.target.value)}
-            className="border-transparent bg-transparent px-0 h-auto text-sm font-semibold text-text focus-visible:bg-bg2 focus-visible:border-border focus-visible:px-2"
-          />
-          <Input
-            value={area.tagline}
-            onChange={(e) => onUpdate('tagline', e.target.value)}
-            className="border-transparent bg-transparent px-0 h-auto text-xs text-text3 font-normal mt-0.5 focus-visible:bg-bg2 focus-visible:border-border focus-visible:px-2"
-          />
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-text3 text-[0.6rem] uppercase tracking-wider">Rent/mo</Label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                value={area.defaultRent || ''}
-                onChange={(e) => onUpdate('defaultRent', Number(e.target.value) || 0)}
-                className="bg-bg2 border-border text-text text-xs mt-0.5"
-              />
-            </div>
-            <div>
-              <Label className="text-text3 text-[0.6rem] uppercase tracking-wider">Key Money</Label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                value={area.defaultKeyMoney || ''}
-                onChange={(e) => onUpdate('defaultKeyMoney', Number(e.target.value) || 0)}
-                className="bg-bg2 border-border text-text text-xs mt-0.5"
-              />
-            </div>
-          </div>
+      <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className={`absolute top-3.5 text-[#6b6158] hover:text-[#c75b3a] text-lg transition-all opacity-0 group-hover:opacity-100 ${isSelected ? 'right-[6.5rem]' : 'right-3'}`}>
+        &times;
+      </button>
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-            <div className="text-text3">Budget Range</div>
-            <div className="text-text2 text-right">{area.budgetRange}</div>
-            <div className="text-text3">Rent Range</div>
-            <div className="text-text2 text-right">{area.rentRange}</div>
-            <div className="text-text3">Key Money</div>
-            <div className="text-text2 text-right">{area.keyMoneyRange}</div>
-          </div>
+      <input value={area.name} onChange={(e) => onUpdate('name', e.target.value)}
+        className="bg-transparent border-none text-[#ece5db] text-base font-bold w-full p-0 mb-0.5 outline-none focus:border-b focus:border-[#252525]" />
+      <input value={area.tagline} onChange={(e) => onUpdate('tagline', e.target.value)}
+        className="bg-transparent border-none text-[#d4a54a] text-xs w-full p-0 mb-4 outline-none opacity-80" />
 
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        <div className="bg-[#0b0b0b] border border-[#333] rounded-lg p-3 text-center">
+          <EditableNumber value={area.defaultRent} onChange={(v) => onUpdate('defaultRent', v)} size="sm" />
+          <div className="text-[0.6rem] text-[#6b6158] uppercase mt-1.5 tracking-wider">Rent/mo (EGP)</div>
+        </div>
+        <div className="bg-[#0b0b0b] border border-[#333] rounded-lg p-3 text-center">
+          <EditableNumber value={area.defaultKeyMoney} onChange={(v) => onUpdate('defaultKeyMoney', v)} size="sm" />
+          <div className="text-[0.6rem] text-[#6b6158] uppercase mt-1.5 tracking-wider">Key Money (EGP)</div>
+        </div>
+        <div className="bg-[#0b0b0b] border border-[#333] rounded-lg p-3 text-center">
+          <input value={area.budgetRange} onChange={(e) => onUpdate('budgetRange', e.target.value)}
+            className="bg-transparent border border-[#444] rounded text-[#d4a54a] text-sm font-bold text-center w-full p-1.5 outline-none focus:border-[#d4a54a]" />
+          <div className="text-[0.6rem] text-[#6b6158] uppercase mt-1.5 tracking-wider">Budget Range</div>
+        </div>
+      </div>
+
+      <div className="text-xs text-[#a09889] mb-3">
+        <span className="font-semibold text-[#6b6158]">Best spots: </span>
+        <span contentEditable suppressContentEditableWarning onBlur={(e) => onUpdate('bestSpots', e.currentTarget.textContent || '')}>{area.bestSpots}</span>
+      </div>
+
+      <button onClick={() => setShowPros(!showPros)} className="text-[0.65rem] font-bold text-[#6b6158] uppercase tracking-wider flex items-center gap-1 mb-2 cursor-pointer hover:text-[#a09889] transition-colors">
+        <ChevronRight size={12} className={`transition-transform ${showPros ? 'rotate-90' : ''}`} />
+        Pros & Cons
+      </button>
+      {showPros && (
+        <div className="grid grid-cols-2 gap-3 text-xs mb-3 animate-in fade-in-0 duration-200">
           <div>
-            <span className="text-[0.6rem] text-text3 uppercase tracking-wider">Best Spots</span>
-            <p className="text-xs text-text2 mt-0.5">{area.bestSpots}</p>
+            {area.pros.map((p, i) => (
+              <div key={i} className="flex items-start gap-1 text-[#a09889] mb-1">
+                <span className="text-[#5ba872]">✓</span><span>{p}</span>
+              </div>
+            ))}
           </div>
-
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <span className="text-gold font-semibold block mb-1">Pros</span>
-              {area.pros.map((p, i) => (
-                <div key={i} className="flex items-start gap-1 text-text2 mb-0.5">
-                  <span className="text-gold mt-0.5">+</span>
-                  <span>{p}</span>
-                </div>
-              ))}
-            </div>
-            <div>
-              <span className="text-destructive font-semibold block mb-1">Cons</span>
-              {area.cons.map((c, i) => (
-                <div key={i} className="flex items-start gap-1 text-text2 mb-0.5">
-                  <span className="text-destructive mt-0.5">-</span>
-                  <span>{c}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex gap-2 pt-1">
-            {!isSelected && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onSelect}
-                className="flex-1 border-gold/30 text-gold hover:bg-gold/10"
-              >
-                <MapPin size={12} />
-                Select This Area
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onDelete}
-              className="text-text3 hover:text-destructive"
-            >
-              <Trash2 size={12} />
-            </Button>
+          <div>
+            {area.cons.map((c, i) => (
+              <div key={i} className="flex items-start gap-1 text-[#a09889] mb-1">
+                <span className="text-[#c75b3a]">✗</span><span>{c}</span>
+              </div>
+            ))}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      )}
+
+      <button onClick={onSelect}
+        className={`w-full py-2.5 rounded-lg text-sm font-bold transition-all ${
+          isSelected
+            ? 'bg-[#d4a54a] text-[#0b0b0b] shadow-[0_2px_12px_rgba(212,165,74,0.25)]'
+            : 'bg-[#1e1e1e] text-[#a09889] border border-[#252525] hover:border-[#d4a54a] hover:text-[#d4a54a] hover:shadow-[0_0_12px_rgba(212,165,74,0.08)]'
+        }`}
+      >
+        {isSelected ? '✓ Selected' : 'Select This Area'}
+      </button>
+    </div>
   );
 }
 
@@ -170,137 +127,121 @@ export function Areas() {
   const selectArea = usePlanStore((s) => s.selectArea);
   const set = usePlanStore((s) => s.set);
   const calc = useCalc();
-
   const selected = calc.selectedArea;
+  const [toast, setToast] = useState('');
 
-  const handleDelete = useCallback(
-    (id: string) => {
-      const newAreas = areas.filter((a) => a.id !== id);
-      const update: Partial<PlanState> = { areas: newAreas };
-      if (selectedArea === id && newAreas.length > 0) {
-        update.selectedArea = newAreas[0].id;
-      }
-      set(update);
-    },
-    [areas, selectedArea, set]
-  );
+  const handleSelect = useCallback((id: string) => {
+    selectArea(id);
+    const area = areas.find(a => a.id === id);
+    if (area) {
+      setToast(`${area.name} selected — rent & key money updated`);
+      setTimeout(() => setToast(''), 2500);
+    }
+  }, [areas, selectArea]);
 
-  const handleUpdate = useCallback(
-    (id: string, field: keyof Area, value: string | number) => {
-      const newAreas = areas.map((a) =>
-        a.id === id ? { ...a, [field]: value } : a
-      );
-      set({ areas: newAreas });
-    },
-    [areas, set]
-  );
+  const handleDelete = useCallback((id: string) => {
+    if (areas.length <= 1) return;
+    const newAreas = areas.filter(a => a.id !== id);
+    const update: Partial<PlanState> = { areas: newAreas };
+    if (selectedArea === id) { update.selectedArea = newAreas[0].id; }
+    set(update);
+  }, [areas, selectedArea, set]);
+
+  const handleUpdate = useCallback((id: string, field: keyof Area, value: string | number) => {
+    const newAreas = areas.map(a => a.id === id ? { ...a, [field]: value } : a);
+    set({ areas: newAreas });
+    if ((field === 'defaultRent' || field === 'defaultKeyMoney') && id === selectedArea) {
+      const updated = newAreas.find(a => a.id === id);
+      if (updated) set({ monthlyRent: updated.defaultRent, keyMoney: updated.defaultKeyMoney });
+    }
+  }, [areas, selectedArea, set]);
 
   const handleAdd = useCallback(() => {
-    const newArea: Area = {
-      id: `custom_${Date.now()}`,
-      name: 'New Area',
-      tagline: 'Add a tagline',
-      defaultRent: 30000,
-      defaultKeyMoney: 500000,
-      budgetMin: 2,
-      budgetRange: '2-4M',
-      rentRange: '20,000-50,000',
-      keyMoneyRange: '300,000-1,000,000',
-      buyRange: '3-8M',
-      bestSpots: 'Research and add best spots',
-      pros: ['Add pros'] as readonly string[],
-      cons: ['Add cons'] as readonly string[],
-    };
+    const newArea: Area = { id: `area_${Date.now()}`, name: 'New Area', tagline: 'Edit details', defaultRent: 30000, defaultKeyMoney: 500000, budgetMin: 2, budgetRange: '2–4M', rentRange: '20,000–50,000', keyMoneyRange: '300K–1M', buyRange: '3–6M', bestSpots: 'Research and add...', pros: ['Add pros'] as unknown as readonly string[], cons: ['Add cons'] as unknown as readonly string[] };
     set({ areas: [...areas, newArea] });
   }, [areas, set]);
 
-  const handleReset = useCallback(() => {
-    set({ areas: [...AREA_DEFAULTS] as Area[], selectedArea: 'maadi' });
-  }, [set]);
-
   return (
     <div className="space-y-6">
-      {/* Reality check */}
-      {selected && (
-        <Card className="bg-card border-border border-gold/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-gold">
-              <MapPin size={16} />
-              Area Reality Check — {selected.name}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="bg-bg2 rounded-lg p-3 text-center">
-                <div className="text-lg font-extrabold text-gold">{fmtK(selected.defaultRent)}</div>
-                <div className="text-[0.6rem] text-text3 uppercase tracking-wider">rent/mo</div>
-              </div>
-              <div className="bg-bg2 rounded-lg p-3 text-center">
-                <div className="text-lg font-extrabold text-gold">{fmtK(selected.defaultKeyMoney)}</div>
-                <div className="text-[0.6rem] text-text3 uppercase tracking-wider">key money</div>
-              </div>
-              <div className="bg-bg2 rounded-lg p-3 text-center">
-                <div className="text-lg font-extrabold text-text2">{selected.budgetRange}</div>
-                <div className="text-[0.6rem] text-text3 uppercase tracking-wider">total budget</div>
-              </div>
-              <div className="bg-bg2 rounded-lg p-3 text-center">
-                <div className="text-lg font-extrabold text-text2">{fmt(calc.totalStartup)}</div>
-                <div className="text-[0.6rem] text-text3 uppercase tracking-wider">your startup</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <div>
+        <p className="text-xs text-[#d4a54a] font-semibold tracking-widest uppercase mb-1">Strategy</p>
+        <h2 className="text-2xl font-black tracking-tight text-[#ece5db]">Prospect Areas</h2>
+        <p className="text-sm text-[#a09889] mt-1">Select your target area. Rent and key money update across all calculations.</p>
+      </div>
 
-      {/* Selected area summary */}
+      {/* Reality Check */}
       {selected && (
-        <div className="flex items-center gap-3 bg-bg2 rounded-lg px-4 py-3 border border-border">
-          <CheckCircle size={16} className="text-gold shrink-0" />
-          <div className="flex-1 min-w-0">
-            <span className="text-sm font-semibold text-text">{selected.name}</span>
-            <span className="text-xs text-text3 ml-2">{selected.tagline}</span>
+        <div className="bg-[#181818] border border-[#d4a54a]/15 rounded-xl p-5">
+          <h3 className="font-bold text-sm mb-3">Area Reality Check</h3>
+          <p className="text-[0.65rem] text-[#6b6158] mb-3">Based on your selected area</p>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-[#0b0b0b] rounded-lg p-3 text-center">
+              <div className="text-lg font-extrabold text-[#c75b3a]">{selected.buyRange}</div>
+              <div className="text-[0.55rem] text-[#6b6158] uppercase mt-1">Buy Price Range</div>
+            </div>
+            <div className="bg-[#0b0b0b] rounded-lg p-3 text-center">
+              <div className="text-lg font-extrabold text-[#d4a54a]">{selected.rentRange}</div>
+              <div className="text-[0.55rem] text-[#6b6158] uppercase mt-1">Rent/month Range</div>
+            </div>
+            <div className="bg-[#0b0b0b] rounded-lg p-3 text-center">
+              <div className="text-lg font-extrabold text-[#c08b5c]">{selected.keyMoneyRange}</div>
+              <div className="text-[0.55rem] text-[#6b6158] uppercase mt-1">Key Money Range</div>
+            </div>
           </div>
-          <Badge className="bg-gold/20 text-gold text-[0.6rem] shrink-0">Active</Badge>
+          <p className="text-xs text-[#a09889] mt-3"><strong className="text-[#d4a54a]">Buying is expensive</strong> — rent a Tier 2 spot, buy in Year 3-5 once profitable.</p>
+          <p className="text-xs text-[#a09889] mt-1"><strong className="text-[#c75b3a]">Always ask: "إيه قيمة الخلو؟"</strong> — Key money can add millions to "reasonable" rent.</p>
         </div>
       )}
 
-      {/* Budget ranking */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="text-text text-sm">Budget Ranking (Min Entry)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <BudgetBar areas={areas} />
+      {/* Selected summary */}
+      {selected && (
+        <div className="flex items-center gap-3 bg-[#d4a54a]/10 border border-[#d4a54a]/25 rounded-lg px-4 py-3 text-sm">
+          <span className="text-[#a09889]">Selected:</span>
+          <strong className="text-[#d4a54a]">{selected.name}</strong>
+          <span className="text-[#6b6158]">|</span>
+          <span className="text-[#ece5db]">Rent: <strong>{fmt(selected.defaultRent)}</strong>/mo</span>
+          <span className="text-[#6b6158]">|</span>
+          <span className="text-[#ece5db]">Key Money: <strong>{fmtK(selected.defaultKeyMoney)}</strong></span>
+        </div>
+      )}
+
+      {/* Budget Ranking */}
+      <Card className="bg-[#181818] border-[#252525]">
+        <CardContent className="pt-5">
+          <h3 className="text-sm font-bold text-[#a09889] mb-4">Budget Ranking — Cheapest to Most Expensive</h3>
+          <BudgetRanking areas={areas} selectedId={selectedArea} onSelect={handleSelect} />
         </CardContent>
       </Card>
 
-      {/* Area cards grid */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-text2">All Areas ({areas.length})</h3>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleAdd} className="border-border text-text2">
-            <Plus size={14} />
-            Add Area
-          </Button>
-          <Button variant="ghost" size="sm" onClick={handleReset} className="text-text3 hover:text-destructive">
-            <RotateCcw size={14} />
-            Reset
-          </Button>
-        </div>
-      </div>
-
+      {/* Area cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {areas.map((area) => (
-          <AreaCard
-            key={area.id}
-            area={area}
-            isSelected={area.id === selectedArea}
-            onSelect={() => selectArea(area.id)}
-            onDelete={() => handleDelete(area.id)}
-            onUpdate={(field, value) => handleUpdate(area.id, field, value)}
-          />
+          <AreaCard key={area.id} area={area} isSelected={area.id === selectedArea}
+            onSelect={() => handleSelect(area.id)} onDelete={() => handleDelete(area.id)}
+            onUpdate={(field, value) => handleUpdate(area.id, field, value)} />
         ))}
+
+        {/* Add card */}
+        <button onClick={handleAdd} className="border-2 border-dashed border-[#252525] rounded-xl p-8 flex flex-col items-center justify-center gap-2 text-[#6b6158] hover:border-[#d4a54a] hover:text-[#d4a54a] transition-colors cursor-pointer min-h-[200px]">
+          <Plus size={24} />
+          <span className="text-sm">Add New Area</span>
+        </button>
       </div>
+
+      {/* Reset */}
+      <div className="text-right">
+        <Button variant="ghost" size="sm" onClick={() => { set({ areas: [...AREA_DEFAULTS] as Area[], selectedArea: 'maadi' }); }}
+          className="text-[#6b6158] hover:text-[#c75b3a] text-xs">
+          <RotateCcw size={12} className="mr-1" /> Reset All Areas to Defaults
+        </Button>
+      </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#d4a54a] text-[#0b0b0b] px-5 py-2.5 rounded-lg text-sm font-bold z-50 shadow-lg animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { fmt, fmtK, fmtPct } from '@/lib/format';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { EditableNumber } from '@/components/ui/editable-number';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import {
@@ -83,11 +84,11 @@ function PartnerRow({
     [index, updatePartner]
   );
   const handleMonthly = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => updatePartner(index, { monthly: Number(e.target.value) || 0 }),
+    (v: number) => updatePartner(index, { monthly: v }),
     [index, updatePartner]
   );
   const handleCurrent = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => updatePartner(index, { current: Number(e.target.value) || 0 }),
+    (v: number) => updatePartner(index, { current: v }),
     [index, updatePartner]
   );
   const handleRemove = useCallback(() => removePartner(index), [index, removePartner]);
@@ -100,22 +101,18 @@ function PartnerRow({
       </div>
       <div>
         <Label className="text-text3 text-xs mb-1">Monthly</Label>
-        <Input
-          type="number"
-          inputMode="numeric"
-          value={monthly || ''}
+        <EditableNumber
+          value={monthly}
           onChange={handleMonthly}
-          className="bg-bg2 border-border text-text"
+          size="sm"
         />
       </div>
       <div>
         <Label className="text-text3 text-xs mb-1">Current</Label>
-        <Input
-          type="number"
-          inputMode="numeric"
-          value={current || ''}
+        <EditableNumber
+          value={current}
           onChange={handleCurrent}
-          className="bg-bg2 border-border text-text"
+          size="sm"
         />
       </div>
       {partnersCount > 1 && (
@@ -141,32 +138,28 @@ function SplitRow({
   const set = usePlanStore((s) => s.set);
 
   const handleAlloc = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => set({ [allocKey]: Number(e.target.value) || 0 }),
+    (v: number) => set({ [allocKey]: v }),
     [allocKey, set]
   );
   const handleReturn = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => set({ [returnKey]: Number(e.target.value) || 0 }),
+    (v: number) => set({ [returnKey]: v }),
     [returnKey, set]
   );
 
   return (
     <div className="grid grid-cols-[1fr_80px_80px] gap-2 items-center">
       <span className="text-sm text-text2">{label}</span>
-      <Input
-        type="number"
-        inputMode="numeric"
-        value={alloc || ''}
+      <EditableNumber
+        value={alloc}
         onChange={handleAlloc}
-        className="bg-bg2 border-border text-text text-center text-xs"
-        placeholder="%"
+        size="sm"
+        suffix="%"
       />
-      <Input
-        type="number"
-        inputMode="numeric"
-        value={ret || ''}
+      <EditableNumber
+        value={ret}
         onChange={handleReturn}
-        className="bg-bg2 border-border text-text text-center text-xs"
-        placeholder="%"
+        size="sm"
+        suffix="%"
       />
     </div>
   );
@@ -262,22 +255,16 @@ export function SavingsPlan() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label className="text-text3 text-xs mb-1">Gold Reserves (EGP)</Label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                value={goldReserves || ''}
-                onChange={(e) => set({ goldReserves: Number(e.target.value) || 0 })}
-                className="bg-bg2 border-border text-text"
+              <EditableNumber
+                value={goldReserves}
+                onChange={(v) => set({ goldReserves: v })}
               />
             </div>
             <div>
               <Label className="text-text3 text-xs mb-1">Savings Target (EGP)</Label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                value={savingsTarget || ''}
-                onChange={(e) => set({ savingsTarget: Number(e.target.value) || 0 })}
-                className="bg-bg2 border-border text-text"
+              <EditableNumber
+                value={savingsTarget}
+                onChange={(v) => set({ savingsTarget: v })}
               />
             </div>
           </div>
@@ -337,12 +324,10 @@ export function SavingsPlan() {
               </div>
               <div>
                 <Label className="text-text3 text-xs mb-1">Expected Return (%/yr)</Label>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  value={savingsReturn || ''}
-                  onChange={(e) => set({ savingsReturn: Number(e.target.value) || 0 })}
-                  className="bg-bg2 border-border text-text"
+                <EditableNumber
+                  value={savingsReturn}
+                  onChange={(v) => set({ savingsReturn: v })}
+                  suffix="%"
                 />
               </div>
             </div>
@@ -385,12 +370,10 @@ export function SavingsPlan() {
               {rentalPhase === 'own' ? (
                 <div>
                   <Label className="text-text3 text-xs mb-1">Monthly Rental Income (EGP)</Label>
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    value={rentalIncome || ''}
-                    onChange={(e) => set({ rentalIncome: Number(e.target.value) || 0 })}
-                    className="bg-bg2 border-border text-text"
+                  <EditableNumber
+                    value={rentalIncome}
+                    onChange={(v) => set({ rentalIncome: v })}
+                    suffix=" EGP"
                   />
                   <p className="text-xs text-text3 mt-1">This amount will be added to your monthly savings.</p>
                 </div>
@@ -398,22 +381,18 @@ export function SavingsPlan() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-text3 text-xs mb-1">Property Price (EGP)</Label>
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      value={rentalPropertyPrice || ''}
-                      onChange={(e) => set({ rentalPropertyPrice: Number(e.target.value) || 0 })}
-                      className="bg-bg2 border-border text-text"
+                    <EditableNumber
+                      value={rentalPropertyPrice}
+                      onChange={(v) => set({ rentalPropertyPrice: v })}
+                      suffix=" EGP"
                     />
                   </div>
                   <div>
                     <Label className="text-text3 text-xs mb-1">Expected Rent (EGP/mo)</Label>
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      value={rentalExpectedRent || ''}
-                      onChange={(e) => set({ rentalExpectedRent: Number(e.target.value) || 0 })}
-                      className="bg-bg2 border-border text-text"
+                    <EditableNumber
+                      value={rentalExpectedRent}
+                      onChange={(v) => set({ rentalExpectedRent: v })}
+                      suffix=" EGP"
                     />
                   </div>
                   <div className="md:col-span-2 text-xs text-text3">

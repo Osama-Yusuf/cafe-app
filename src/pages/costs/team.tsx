@@ -3,7 +3,7 @@ import { usePlanStore, type PlanState } from '@/stores/plan-store';
 import { useCalc } from '@/hooks/use-calc';
 import { fmt } from '@/lib/format';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { EditableNumber } from '@/components/ui/editable-number';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronUp, Users } from 'lucide-react';
@@ -47,13 +47,10 @@ function RoleRow({ role }: { role: RoleDef }) {
           {role.phase}
         </Badge>
       </div>
-      <Input
-        type="number"
-        inputMode="numeric"
-        value={salary || ''}
-        onChange={(e) => set({ [role.salKey]: Number(e.target.value) || 0 })}
-        className="h-7 text-right bg-bg border-border text-xs"
-        disabled={!isOn}
+      <EditableNumber
+        value={salary}
+        onChange={(v) => set({ [role.salKey]: v })}
+        size="sm"
       />
       <span className="text-right text-gold font-semibold tabular-nums">
         {isOn ? fmt(salary) : '--'}

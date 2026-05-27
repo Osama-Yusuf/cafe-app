@@ -47,111 +47,121 @@
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
 
-    /* Café custom palette */
-    --color-gold: var(--gold);
-    --color-bg: var(--bg);
-    --color-bg2: var(--bg2);
-    --color-text: var(--text);
-    --color-text2: var(--text2);
-    --color-text3: var(--text3);
-    --color-gold-glow: var(--gold-glow);
+    /* Café palette as Tailwind tokens */
+    --color-gold: #d4a54a;
+    --color-copper: #c08b5c;
+    --color-green: #5ba872;
+    --color-red: #c75b3a;
+    --color-blue: #5b8fc7;
+    --color-purple: #9b7dd4;
+    --color-bg: #0b0b0b;
+    --color-bg2: #131313;
+    --color-text: #ece5db;
+    --color-text2: #a09889;
+    --color-text3: #6b6158;
+    --color-gold-glow: rgba(212, 165, 74, 0.15);
+    --color-green-glow: rgba(91, 168, 114, 0.12);
 }
 
+/* Force dark — this app is always dark */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
+    --background: #0b0b0b;
+    --foreground: #ece5db;
+    --card: #181818;
+    --card-foreground: #ece5db;
+    --popover: #181818;
+    --popover-foreground: #ece5db;
+    --primary: #d4a54a;
+    --primary-foreground: #0b0b0b;
+    --secondary: #1e1e1e;
+    --secondary-foreground: #ece5db;
+    --muted: #1e1e1e;
+    --muted-foreground: #6b6158;
+    --accent: #1e1e1e;
+    --accent-foreground: #ece5db;
+    --destructive: #c75b3a;
+    --border: #252525;
+    --input: #252525;
+    --ring: #d4a54a;
+    --chart-1: #d4a54a;
+    --chart-2: #5ba872;
+    --chart-3: #c08b5c;
+    --chart-4: #5b8fc7;
+    --chart-5: #9b7dd4;
     --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
-
-    /* Café custom palette (light fallback) */
-    --gold: #b8892e;
-    --bg: #ffffff;
-    --bg2: #f5f5f5;
-    --text: #1a1a1a;
-    --text2: #6b6560;
-    --text3: #a39b8f;
-    --gold-glow: rgba(184, 137, 46, 0.08);
+    --sidebar: #131313;
+    --sidebar-foreground: #ece5db;
+    --sidebar-primary: #d4a54a;
+    --sidebar-primary-foreground: #0b0b0b;
+    --sidebar-accent: #1e1e1e;
+    --sidebar-accent-foreground: #ece5db;
+    --sidebar-border: #252525;
+    --sidebar-ring: #d4a54a;
 }
 
+/* Also set .dark in case shadcn checks for it */
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
-
-    /* Café custom palette */
-    --gold: #d4a54a;
-    --bg: #111111;
-    --bg2: #181818;
-    --text: #ece5db;
-    --text2: #a39b8f;
-    --text3: #6b6560;
-    --gold-glow: rgba(212, 165, 74, 0.08);
+    --background: #0b0b0b;
+    --foreground: #ece5db;
+    --card: #181818;
+    --card-foreground: #ece5db;
+    --popover: #181818;
+    --popover-foreground: #ece5db;
+    --primary: #d4a54a;
+    --primary-foreground: #0b0b0b;
+    --secondary: #1e1e1e;
+    --secondary-foreground: #ece5db;
+    --muted: #1e1e1e;
+    --muted-foreground: #6b6158;
+    --accent: #1e1e1e;
+    --accent-foreground: #ece5db;
+    --destructive: #c75b3a;
+    --border: #252525;
+    --input: #252525;
+    --ring: #d4a54a;
+    --chart-1: #d4a54a;
+    --chart-2: #5ba872;
+    --chart-3: #c08b5c;
+    --chart-4: #5b8fc7;
+    --chart-5: #9b7dd4;
+    --sidebar: #131313;
+    --sidebar-foreground: #ece5db;
+    --sidebar-primary: #d4a54a;
+    --sidebar-primary-foreground: #0b0b0b;
+    --sidebar-accent: #1e1e1e;
+    --sidebar-accent-foreground: #ece5db;
+    --sidebar-border: #252525;
+    --sidebar-ring: #d4a54a;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
+  }
   html {
     @apply font-sans;
-    }
+  }
+  /* Fix input contrast */
+  input[type="number"], input[type="text"], input[type="month"], select {
+    color: #ece5db !important;
+    background: #131313 !important;
+    border-color: #333 !important;
+  }
+  input[type="number"]:focus, input[type="text"]:focus, select:focus {
+    border-color: #d4a54a !important;
+    box-shadow: 0 0 0 2px rgba(212, 165, 74, 0.15) !important;
+    outline: none !important;
+  }
+  /* Fix checkbox/switch visibility */
+  [role="checkbox"], [data-state] {
+    border-color: #444 !important;
+  }
 }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0b0b0b; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }

@@ -9,7 +9,7 @@ export function FaithPage() {
 
   return (
     <Tabs value={activeTab} onValueChange={(v) => setTab('faith', v)}>
-      <TabsList className="bg-bg2 border border-border mb-6">
+      <TabsList>
         <TabsTrigger value="ramadan">Ramadan</TabsTrigger>
         <TabsTrigger value="zakat">Zakat</TabsTrigger>
       </TabsList>

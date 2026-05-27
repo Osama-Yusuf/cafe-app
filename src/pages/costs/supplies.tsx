@@ -2,7 +2,7 @@ import { usePlanStore, type PlanState } from '@/stores/plan-store';
 import { useCalc } from '@/hooks/use-calc';
 import { fmt } from '@/lib/format';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { EditableNumber } from '@/components/ui/editable-number';
 
 function SupplyRow({
   label,
@@ -27,29 +27,21 @@ function SupplyRow({
   return (
     <div className="grid grid-cols-[1fr_80px_80px_90px] gap-2 items-center py-1.5 border-b border-border text-sm">
       <span className="text-text2">{label}</span>
-      <div className="relative">
-        <Input
-          type="number"
-          inputMode="numeric"
-          value={qty || ''}
-          onChange={(e) => set({ [qtyKey]: Number(e.target.value) || 0 })}
-          className="h-7 text-right bg-bg border-border text-xs pr-1"
+      <div className="flex gap-1 items-center">
+        <EditableNumber
+          value={qty}
+          onChange={(v) => set({ [qtyKey]: v })}
+          size="sm"
+          suffix={` ${qtyLabel}`}
         />
-        <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[0.6rem] text-text3 pointer-events-none">
-          {qtyLabel}
-        </span>
       </div>
-      <div className="relative">
-        <Input
-          type="number"
-          inputMode="numeric"
-          value={price || ''}
-          onChange={(e) => set({ [priceKey]: Number(e.target.value) || 0 })}
-          className="h-7 text-right bg-bg border-border text-xs pr-1"
+      <div className="flex gap-1 items-center">
+        <EditableNumber
+          value={price}
+          onChange={(v) => set({ [priceKey]: v })}
+          size="sm"
+          suffix={` ${priceLabel}`}
         />
-        <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[0.6rem] text-text3 pointer-events-none">
-          {priceLabel}
-        </span>
       </div>
       <span className="text-right text-gold font-semibold tabular-nums">{fmt(monthly)}</span>
     </div>
@@ -70,12 +62,10 @@ function SimpleRow({
     <div className="grid grid-cols-[1fr_80px_80px_90px] gap-2 items-center py-1.5 border-b border-border text-sm">
       <span className="text-text2">{label}</span>
       <span />
-      <Input
-        type="number"
-        inputMode="numeric"
-        value={value || ''}
-        onChange={(e) => set({ [storeKey]: Number(e.target.value) || 0 })}
-        className="h-7 text-right bg-bg border-border text-xs"
+      <EditableNumber
+        value={value}
+        onChange={(v) => set({ [storeKey]: v })}
+        size="sm"
       />
       <span className="text-right text-gold font-semibold tabular-nums">{fmt(value)}</span>
     </div>

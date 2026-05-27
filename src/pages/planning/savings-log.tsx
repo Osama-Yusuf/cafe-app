@@ -4,6 +4,7 @@ import { useCalc } from '@/hooks/use-calc';
 import { fmt, fmtK, fmtPct } from '@/lib/format';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { EditableNumber } from '@/components/ui/editable-number';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, TrendingUp, Target } from 'lucide-react';
@@ -61,12 +62,12 @@ function LogEntryRow({
   );
 
   const handlePartner = useCallback(
-    (partnerIdx: number, val: string) => updateLogEntry(index, partnerIdx, Number(val) || 0),
+    (partnerIdx: number, val: number) => updateLogEntry(index, partnerIdx, val),
     [index, updateLogEntry]
   );
 
   const handleRental = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => updateLogEntry(index, 'rental', Number(e.target.value) || 0),
+    (v: number) => updateLogEntry(index, 'rental', v),
     [index, updateLogEntry]
   );
 
@@ -93,23 +94,19 @@ function LogEntryRow({
       </td>
       {partnerNames.map((_, pi) => (
         <td key={pi} className="py-2 px-1">
-          <Input
-            type="number"
-            inputMode="numeric"
-            value={entry.entries[pi] || ''}
-            onChange={(e) => handlePartner(pi, e.target.value)}
-            className="bg-bg2 border-border text-text text-xs text-center w-[90px]"
+          <EditableNumber
+            value={entry.entries[pi] || 0}
+            onChange={(v) => handlePartner(pi, v)}
+            size="sm"
           />
         </td>
       ))}
       {showRental && (
         <td className="py-2 px-1">
-          <Input
-            type="number"
-            inputMode="numeric"
-            value={entry.rental || ''}
+          <EditableNumber
+            value={entry.rental || 0}
             onChange={handleRental}
-            className="bg-bg2 border-border text-text text-xs text-center w-[90px]"
+            size="sm"
           />
         </td>
       )}

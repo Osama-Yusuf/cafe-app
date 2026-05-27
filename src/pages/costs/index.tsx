@@ -10,7 +10,7 @@ export function CostsPage() {
   const activeTab = getTab('costs') || 'startup';
   return (
     <Tabs value={activeTab} onValueChange={(v) => setTab('costs', v)}>
-      <TabsList className="bg-bg2 border border-border mb-6">
+      <TabsList>
         <TabsTrigger value="startup">Startup</TabsTrigger>
         <TabsTrigger value="supplies">Supplies</TabsTrigger>
         <TabsTrigger value="suppliers">Suppliers</TabsTrigger>

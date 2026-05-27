@@ -1,128 +1,86 @@
-import { useCallback } from 'react';
+import { useRef, useState } from 'react';
 import { usePlanStore } from '@/stores/plan-store';
 import { usePartnershipStore } from '@/stores/partnership-store';
 import { useCalc } from '@/hooks/use-calc';
 import { fmt, fmtPct } from '@/lib/format';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Users, PieChart, Briefcase, Shield, FileText, DoorOpen } from 'lucide-react';
+import { EditableNumber } from '@/components/ui/editable-number';
+import { PieChart, Briefcase, Shield, FileText, DoorOpen } from 'lucide-react';
 
-function RoleItem({
-  value,
-  onChange,
-  onRemove,
-}: {
-  value: string;
-  onChange: (val: string) => void;
-  onRemove: () => void;
-}) {
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value),
-    [onChange]
-  );
+function KanbanBoard() {
+  const partners = usePlanStore((s) => s.partners);
+  const { roles, sharedRoles, updateRole, addRole, removeRole, updateSharedRole, addSharedRole, removeSharedRole, moveRole } = usePartnershipStore();
+  const [dragOver, setDragOver] = useState<string | null>(null);
+
+  const dragRef = useRef<{ from: number | 'shared'; idx: number } | null>(null);
+
+  const colors = ['#d4a54a', '#5ba872', '#5b8fc7', '#c08b5c', '#9b7dd4'];
+
+  const columns: { id: number | 'shared'; name: string; color: string; items: string[] }[] = [
+    ...partners.map((p, i) => ({ id: i as number, name: p.name, color: colors[i % colors.length], items: roles[i] || [] })),
+    { id: 'shared' as const, name: 'Shared', color: '#d4a54a', items: sharedRoles },
+  ];
+
+  const handleDragStart = (from: number | 'shared', idx: number) => {
+    dragRef.current = { from, idx };
+  };
+
+  const handleDrop = (toCol: number | 'shared') => {
+    setDragOver(null);
+    if (!dragRef.current) return;
+    const { from, idx } = dragRef.current;
+    if (from === toCol) return;
+    moveRole(from, idx, toCol);
+    dragRef.current = null;
+  };
 
   return (
-    <div className="group flex items-center gap-2">
-      <div className="w-1.5 h-1.5 rounded-full bg-gold/50 shrink-0" />
-      <Input
-        value={value}
-        onChange={handleChange}
-        className="flex-1 border-transparent bg-transparent px-1 h-7 text-sm text-text focus-visible:bg-bg2 focus-visible:border-border"
-      />
-      <Button
-        variant="ghost"
-        size="icon-xs"
-        onClick={onRemove}
-        className="opacity-0 group-hover:opacity-100 text-text3 hover:text-destructive transition-opacity shrink-0"
-      >
-        <Trash2 size={12} />
-      </Button>
+    <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+      {columns.map((col) => {
+        const colKey = String(col.id);
+        const isOver = dragOver === colKey;
+        return (
+          <div
+            key={colKey}
+            className={`flex-1 min-w-[180px] rounded-xl border transition-colors ${isOver ? 'border-[#d4a54a] bg-[#d4a54a]/5' : 'border-[#252525] bg-[#131313]'}`}
+            onDragOver={(e) => { e.preventDefault(); setDragOver(colKey); }}
+            onDragLeave={() => setDragOver(null)}
+            onDrop={() => handleDrop(col.id)}
+          >
+            <div className="flex items-center gap-2 px-3 py-2.5 border-b border-[#252525]">
+              <div className="w-2 h-2 rounded-sm" style={{ background: col.color }} />
+              <span className="text-xs font-bold text-[#ece5db]">{col.name}</span>
+              <span className="ml-auto text-[0.6rem] text-[#6b6158]">{col.items.length}</span>
+            </div>
+            <div className="p-2 space-y-1.5 min-h-[60px]">
+              {col.items.map((item, idx) => (
+                <div
+                  key={idx}
+                  draggable
+                  onDragStart={() => handleDragStart(col.id, idx)}
+                  className="group flex items-center gap-1.5 bg-[#181818] border border-[#252525] rounded-md px-2.5 py-1.5 cursor-grab active:cursor-grabbing hover:border-[#333] transition-colors"
+                >
+                  <span className="text-[#6b6158] text-[0.65rem] cursor-grab shrink-0">⠿</span>
+                  <input
+                    value={item}
+                    onChange={(e) => col.id === 'shared' ? updateSharedRole(idx, e.target.value) : updateRole(col.id as number, idx, e.target.value)}
+                    className="flex-1 bg-transparent border-none text-[#a09889] text-xs outline-none focus:text-[#ece5db] min-w-0"
+                  />
+                  <button
+                    onClick={() => col.id === 'shared' ? removeSharedRole(idx) : removeRole(col.id as number, idx)}
+                    className="text-[#6b6158] hover:text-[#c75b3a] text-sm opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                  >&times;</button>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => col.id === 'shared' ? addSharedRole() : addRole(col.id as number)}
+              className="w-full text-left px-3 py-2 text-[0.65rem] text-[#6b6158] hover:text-[#d4a54a] transition-colors"
+            >+ Add</button>
+          </div>
+        );
+      })}
     </div>
-  );
-}
-
-function PartnerRolesCard({ partnerIdx, name }: { partnerIdx: number; name: string }) {
-  const roles = usePartnershipStore((s) => s.roles[partnerIdx] || []);
-  const { updateRole, addRole, removeRole } = usePartnershipStore();
-
-  const handleAdd = useCallback(() => addRole(partnerIdx), [partnerIdx, addRole]);
-
-  return (
-    <Card className="bg-card border-border">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-text text-sm">
-          <div className="w-2 h-2 rounded-full bg-gold" />
-          {name}
-          <Badge variant="secondary" className="ml-auto text-[0.6rem]">
-            {roles.length} roles
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-1">
-          {roles.map((role, ri) => (
-            <RoleItem
-              key={ri}
-              value={role}
-              onChange={(val) => updateRole(partnerIdx, ri, val)}
-              onRemove={() => removeRole(partnerIdx, ri)}
-            />
-          ))}
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleAdd}
-          className="mt-2 text-text3 hover:text-gold"
-        >
-          <Plus size={14} />
-          Add role
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
-function SharedRolesCard() {
-  const sharedRoles = usePartnershipStore((s) => s.sharedRoles);
-  const { updateSharedRole, addSharedRole, removeSharedRole } = usePartnershipStore();
-
-  return (
-    <Card className="bg-card border-border border-dashed">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-text text-sm">
-          <Users size={14} className="text-gold" />
-          Shared Decisions
-          <Badge variant="secondary" className="ml-auto text-[0.6rem]">
-            {sharedRoles.length} items
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-1">
-          {sharedRoles.map((role, i) => (
-            <RoleItem
-              key={i}
-              value={role}
-              onChange={(val) => updateSharedRole(i, val)}
-              onRemove={() => removeSharedRole(i)}
-            />
-          ))}
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={addSharedRole}
-          className="mt-2 text-text3 hover:text-gold"
-        >
-          <Plus size={14} />
-          Add shared role
-        </Button>
-      </CardContent>
-    </Card>
   );
 }
 
@@ -208,18 +166,14 @@ export function Partnership() {
         </CardContent>
       </Card>
 
-      {/* Roles */}
+      {/* Roles — Kanban */}
       <div>
-        <h3 className="text-sm font-bold text-text2 mb-3 flex items-center gap-2">
-          <Briefcase size={14} className="text-gold" />
+        <h3 className="text-sm font-bold text-[#a09889] mb-1 flex items-center gap-2">
+          <Briefcase size={14} className="text-[#d4a54a]" />
           Roles & Responsibilities
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {partners.map((p, i) => (
-            <PartnerRolesCard key={i} partnerIdx={i} name={p.name} />
-          ))}
-          <SharedRolesCard />
-        </div>
+        <p className="text-xs text-[#6b6158] mb-3">Drag items between columns to reassign. Click text to edit.</p>
+        <KanbanBoard />
       </div>
 
       {/* Profit Distribution */}
@@ -232,14 +186,12 @@ export function Partnership() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div>
-              <Label className="text-text3 text-xs mb-1">Reinvestment Rate (%)</Label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                value={partnerReinvest || ''}
-                onChange={(e) => set({ partnerReinvest: Number(e.target.value) || 0 })}
-                className="bg-bg2 border-border text-text max-w-[200px]"
+            <div className="flex items-center gap-3">
+              <span className="text-text3 text-xs">Reinvestment Rate</span>
+              <EditableNumber
+                value={partnerReinvest}
+                onChange={(v) => set({ partnerReinvest: v })}
+                suffix="%"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">

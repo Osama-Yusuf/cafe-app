@@ -12,7 +12,7 @@ export function PlanningPage() {
 
   return (
     <Tabs value={activeTab} onValueChange={(v) => setTab('planning', String(v))}>
-      <TabsList className="bg-bg2 border border-border mb-6">
+      <TabsList>
         <TabsTrigger value="savings">Plan</TabsTrigger>
         <TabsTrigger value="log">Log</TabsTrigger>
         <TabsTrigger value="checklist">Checklist</TabsTrigger>

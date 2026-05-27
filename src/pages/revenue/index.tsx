@@ -8,7 +8,7 @@ export function RevenuePage() {
   const activeTab = getTab('revenue') || 'menu';
   return (
     <Tabs value={activeTab} onValueChange={(v) => setTab('revenue', v)}>
-      <TabsList className="bg-bg2 border border-border mb-6">
+      <TabsList>
         <TabsTrigger value="menu">Menu & Pricing</TabsTrigger>
         <TabsTrigger value="pnl">P&L Analysis</TabsTrigger>
       </TabsList>
