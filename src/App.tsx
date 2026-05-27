@@ -1,22 +1,38 @@
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Coffee } from 'lucide-react'
+import { AppLayout } from '@/components/layout/app-layout';
+import { useNavStore } from '@/stores/nav-store';
+import { DashboardPage } from '@/pages/dashboard';
 
-function App() {
+function PlaceholderPage({ title }: { title: string }) {
   return (
-    <div className="dark min-h-dvh bg-background text-foreground flex items-center justify-center p-4">
-      <Card className="max-w-md w-full">
-        <CardHeader className="text-center">
-          <Coffee className="mx-auto mb-2 text-gold" size={40} />
-          <CardTitle className="text-2xl">Café Planner</CardTitle>
-          <p className="text-sm text-muted-foreground">Stack is ready. Building pages next.</p>
-        </CardHeader>
-        <CardContent className="text-center">
-          <Button>Get Started</Button>
-        </CardContent>
-      </Card>
+    <div className="flex items-center justify-center h-[50vh] text-text3">
+      <div className="text-center">
+        <h2 className="text-xl font-bold mb-2">{title}</h2>
+        <p className="text-sm">Coming soon — being ported from the prototype.</p>
+      </div>
     </div>
-  )
+  );
 }
 
-export default App
+function PageRouter() {
+  const currentPage = useNavStore((s) => s.currentPage);
+
+  switch (currentPage) {
+    case 'dashboard': return <DashboardPage />;
+    case 'planning': return <PlaceholderPage title="Planning" />;
+    case 'costs': return <PlaceholderPage title="Costs" />;
+    case 'revenue': return <PlaceholderPage title="Revenue" />;
+    case 'strategy': return <PlaceholderPage title="Strategy" />;
+    case 'faith': return <PlaceholderPage title="Faith" />;
+    default: return <DashboardPage />;
+  }
+}
+
+export default function App() {
+  return (
+    <div className="dark">
+      <AppLayout>
+        <PageRouter />
+      </AppLayout>
+    </div>
+  );
+}
