@@ -10,7 +10,22 @@ export const AREA_DEFAULTS = [
 ] as const;
 
 export type AreaId = typeof AREA_DEFAULTS[number]['id'];
-export type Area = typeof AREA_DEFAULTS[number] & { id: string };
+
+export interface Area {
+  id: string;
+  name: string;
+  tagline: string;
+  defaultRent: number;
+  defaultKeyMoney: number;
+  budgetMin: number;
+  budgetRange: string;
+  rentRange: string;
+  keyMoneyRange: string;
+  buyRange: string;
+  bestSpots: string;
+  pros: readonly string[];
+  cons: readonly string[];
+}
 
 export const MENU_DEFAULTS = {
   espresso: { name: 'Espresso', category: 'hot', price: 45, cost: 8 },

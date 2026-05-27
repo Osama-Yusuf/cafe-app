@@ -1,6 +1,7 @@
 import { AppLayout } from '@/components/layout/app-layout';
 import { useNavStore } from '@/stores/nav-store';
 import { DashboardPage } from '@/pages/dashboard';
+import { PlanningPage } from '@/pages/planning';
 
 function PlaceholderPage({ title }: { title: string }) {
   return (
@@ -18,7 +19,7 @@ function PageRouter() {
 
   switch (currentPage) {
     case 'dashboard': return <DashboardPage />;
-    case 'planning': return <PlaceholderPage title="Planning" />;
+    case 'planning': return <PlanningPage />;
     case 'costs': return <PlaceholderPage title="Costs" />;
     case 'revenue': return <PlaceholderPage title="Revenue" />;
     case 'strategy': return <PlaceholderPage title="Strategy" />;
