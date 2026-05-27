@@ -2,6 +2,8 @@ import { AppLayout } from '@/components/layout/app-layout';
 import { useNavStore } from '@/stores/nav-store';
 import { DashboardPage } from '@/pages/dashboard';
 import { PlanningPage } from '@/pages/planning';
+import { CostsPage } from '@/pages/costs';
+import { RevenuePage } from '@/pages/revenue';
 
 function PlaceholderPage({ title }: { title: string }) {
   return (
@@ -20,8 +22,8 @@ function PageRouter() {
   switch (currentPage) {
     case 'dashboard': return <DashboardPage />;
     case 'planning': return <PlanningPage />;
-    case 'costs': return <PlaceholderPage title="Costs" />;
-    case 'revenue': return <PlaceholderPage title="Revenue" />;
+    case 'costs': return <CostsPage />;
+    case 'revenue': return <RevenuePage />;
     case 'strategy': return <PlaceholderPage title="Strategy" />;
     case 'faith': return <PlaceholderPage title="Faith" />;
     default: return <DashboardPage />;
